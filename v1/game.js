@@ -1,13 +1,14 @@
 const config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
-    backgroundColor: '#87CEEB',
+    width: window.innerWidth,
+    height: window.innerHeight,
+    parent: 'game-container',
+    backgroundColor: '#87CEEB', // Light blue background
     physics: {
         default: 'matter',
         matter: {
             gravity: { y: 1 },
-            debug: true
+            debug: false
         }
     },
     scene: {
@@ -22,23 +23,24 @@ const game = new Phaser.Game(config);
 let bird, sling, slingPoint, isDragging = false;
 
 function preload() {
-    this.load.image('bird', 'https://i.imgur.com/6upGd3B.png');
-    this.load.image('block', 'https://i.imgur.com/kyPl9L1.png');
-    this.load.image('background', 'https://i.imgur.com/lM1IHGf.png');
+    // Using placeholder images from a reliable source
+    this.load.image('bird', 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Angry_Bird.svg/1200px-Angry_Bird.svg.png');
+    this.load.image('block', 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/1x1.png/600px-1x1.png');
+    this.load.image('background', 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7a/Sky_background.svg/1920px-Sky_background.svg.png');
 }
 
 function create() {
     // Background
-    this.add.image(400, 300, 'background');
+    this.add.image(config.width / 2, config.height / 2, 'background').setDisplaySize(config.width, config.height);
 
     // Create a bird
-    bird = this.matter.add.image(150, 450, 'bird').setCircle().setBounce(0.5).setInteractive();
+    bird = this.matter.add.image(150, config.height - 150, 'bird').setCircle().setBounce(0.5).setScale(0.1).setInteractive();
     
     // Disable bird's gravity until it's launched
     bird.body.ignoreGravity = true;
 
     // Create the slingshot constraint
-    slingPoint = { x: 150, y: 450 };
+    slingPoint = { x: 150, y: config.height - 150 };
     sling = this.matter.add.constraint(bird, slingPoint, 0, 1, {
         pointA: { x: 0, y: 0 },
         pointB: { x: 0, y: 0 },
@@ -79,13 +81,13 @@ function create() {
 
 function createLevel(scene) {
     let blockPositions = [
-        { x: 600, y: 500 },
-        { x: 650, y: 500 },
-        { x: 625, y: 450 },
+        { x: config.width - 200, y: config.height - 100 },
+        { x: config.width - 150, y: config.height - 100 },
+        { x: config.width - 175, y: config.height - 150 },
     ];
 
     blockPositions.forEach(pos => {
-        scene.matter.add.image(pos.x, pos.y, 'block').setStatic(true);
+        scene.matter.add.image(pos.x, pos.y, 'block').setScale(2, 0.5).setStatic(true);
     });
 }
 
@@ -97,7 +99,7 @@ function update() {
 }
 
 function resetBird() {
-    bird.setPosition(150, 450);
+    bird.setPosition(150, config.height - 150);
     bird.setVelocity(0, 0);
     bird.setAngularVelocity(0);
     bird.setAngle(0);
